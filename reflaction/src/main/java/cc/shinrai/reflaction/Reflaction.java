@@ -13,23 +13,22 @@ public class Reflaction {
 
     public Reflaction() {
         __OBJECTS__ = new HashMap<>();
-        put("__SELF__", __OBJECTS__);
     }
     public void put(String symbol, Object object) {
         __OBJECTS__.put(symbol, object);
     }
     public Object get(String symbol) {
-        return __OBJECTS__.get(symbol);
+        if(symbol.equals("__SELF__"))
+            return __OBJECTS__;
+        Object obj = __OBJECTS__.get(symbol);
+        if(obj != null)
+            return obj;
+        else
+            // TODO
+        return null;
     }
     public void reload() {
-        Object obj = __OBJECTS__.get("__SELF__");
-        try {
-            Class<?>[] classes = new Class<?>[] {};
-//            classes[]
-            Method setname = obj.getClass().getDeclaredMethod("setName", String.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
     }
     public void reload(String script) {
 

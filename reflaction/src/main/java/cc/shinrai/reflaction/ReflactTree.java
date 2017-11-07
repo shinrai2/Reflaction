@@ -6,4 +6,8 @@ package cc.shinrai.reflaction;
 
 class ReflactTree {
 
+
+    public Object exec() {
+        return null;
+    }
 }
