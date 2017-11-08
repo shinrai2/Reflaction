@@ -27,3 +27,21 @@ A: 否。
 
 Q: 效率性如何？<br />
 A: 低。
+
+
+
+### 脚本格式
+```
+receiver1,method1,argv_class:argv_value,...;
+receiver2,method2,argv_class:argv_value,...;
+receiver3,method3,argv_class:(receiver4,method4,argv_class:argv_value,...),...;
+```
+
+argv_class 内置格式：
+- String
+- Integer
+- Boolean
+- Float
+- Double
+- Long
+
