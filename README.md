@@ -17,13 +17,10 @@ Q: 脚本如何交付给 App ？<br />
 A: 不是这个项目解决的问题。
 
 Q: 如何确保安全性？<br />
-A: 不确保安全性。脚本可能具有破坏性，但换而言之是提供了极大的自由。
+A: 不确保安全性。
 
 Q: 是否具有侵入性？<br />
 A: 是 :)
-
-Q: 脚本是否图灵完备？<br />
-A: 否。
 
 Q: 效率性如何？<br />
 A: 低。
@@ -39,9 +36,9 @@ receiver3,method3,argv_class:(receiver4,method4,argv_class:argv_value,...),...;
 
 argv_class 内置格式：
 - String
-- Integer
-- Boolean
-- Float
-- Double
-- Long
+- Integer(int)
+- Boolean(boolean)
+- Float(float)
+- Double(double)
+- Long(long)
 

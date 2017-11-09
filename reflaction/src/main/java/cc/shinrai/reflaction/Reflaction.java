@@ -21,8 +21,8 @@ public class Reflaction implements CoreFunc {
 
     @Override
     public Object get(String symbol) {
-        if(symbol.equals("__SELF__")) // direct to HashMap self.
-            return __OBJECTS__;
+        if(symbol.equals("__SELF__")) // direct to self.
+            return this;
         Object obj = __OBJECTS__.get(symbol);
         if(obj != null)
             return obj;

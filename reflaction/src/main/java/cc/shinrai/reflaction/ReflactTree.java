@@ -1,8 +1,12 @@
 package cc.shinrai.reflaction;
 
 
+import android.view.View;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Shinrai on 2017/11/2 0002.
@@ -38,23 +42,42 @@ public class ReflactTree {
             return;
         _receiver = coreFunc.get(assem[0]); // the function receiver
 
-        Class<?>[] classes = new Class<?>[assem.length - 2]; // for build method
-        _ARGV_OBJECTS = new ARGV[assem.length - 2];
-        for(int i=2;i<assem.length;i++) {
-            String[] c_v = assem[i].split(":"); // split argv:: class:value
+        List<Class<?>> classList = new ArrayList<>(); // for build method
+        List<ARGV> argvList = new ArrayList<>();
+        for(int i=0;i<assem.length-2;i++) {
+            String[] c_v = assem[i+2].split(":"); // split argv:: class:value
             Class<?> cls = ClassTable._ClassForName(c_v[0]);
-            classes[i-2] = cls;
+            Class<?> clsForInstance = ClassTable._ReloadClassName(cls); // basic class do not have instance method.
             ARGV argv;
             if(c_v[1].startsWith("(") && c_v[1].endsWith(")"))
                 argv = new ARGV(false, null, new ReflactTree(c_v[1].substring(1, c_v[1].length()-1), coreFunc));
             else
-                argv = new ARGV(true, cls.getDeclaredConstructor(String.class).newInstance(c_v[1]), null);
-            _ARGV_OBJECTS[i-2] = argv;
+                argv = new ARGV(true, clsForInstance.getDeclaredConstructor(String.class).newInstance(c_v[1]), null);
+
+            classList.add(cls);
+            argvList.add(argv);
         }
-        _method = _receiver.getClass().getDeclaredMethod(assem[1], classes);
+
+        Class<?>[] classes = new Class<?>[classList.size()];
+        _ARGV_OBJECTS = new ARGV[argvList.size()];
+        classList.toArray(classes);
+        argvList.toArray(_ARGV_OBJECTS);
+
+        Class<?> _root_class = _receiver.getClass();
+        if(_receiver != null) // protect. if receiver is null, pointless.
+            while(_method == null && _root_class != Object.class) {
+                try { // must handle it in this loop, otherwise this loop will be break.
+                    _method = _root_class.getDeclaredMethod(assem[1], classes);
+                } catch (NoSuchMethodException e) {
+                    e.printStackTrace();
+                }
+                _root_class = _root_class.getSuperclass();
+            }
     }
 
     public Object exec() {
+        if(_receiver == null || _method == null) // if have not receiver, do not exec.
+            return null;
         Object result = null; // receive the return of func
         Object[] objects = new Object[_ARGV_OBJECTS.length];
         for(int i=0;i<_ARGV_OBJECTS.length;i++)
@@ -126,6 +149,30 @@ class ClassTable {
             return Double.class;
         if(className.equals("Long"))
             return Long.class;
+        if(className.equals("int"))
+            return int.class;
+        if(className.equals("boolean"))
+            return boolean.class;
+        if(className.equals("float"))
+            return float.class;
+        if(className.equals("double"))
+            return double.class;
+        if(className.equals("long"))
+            return long.class;
         return Class.forName(className);
+    }
+
+    public static Class<?> _ReloadClassName(Class<?> cls) {
+        if(cls == int.class)
+            return Integer.class;
+        if(cls == boolean.class)
+            return Boolean.class;
+        if(cls == float.class)
+            return Float.class;
+        if(cls == double.class)
+            return Double.class;
+        if(cls == long.class)
+            return Long.class;
+        return cls; // not match, return origin.
     }
 }
