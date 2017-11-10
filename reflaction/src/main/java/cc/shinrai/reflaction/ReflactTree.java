@@ -87,6 +87,8 @@ public class ReflactTree {
             objects[i] = _ARGV_OBJECTS[i].get();
         try {
             result = _method.invoke(_receiver, objects); // exec the method
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (InvocationTargetException e) {
