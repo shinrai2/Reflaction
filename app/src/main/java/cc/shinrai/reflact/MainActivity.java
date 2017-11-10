@@ -1,12 +1,11 @@
 package cc.shinrai.reflact;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.TextView;
 
 public class MainActivity extends BaseActivity {
     private TextView helloText;
+    private TextView fuckText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -14,8 +13,9 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
 
         helloText = (TextView) findViewById(R.id.hello_text);
+        fuckText = (TextView) findViewById(R.id.fuck_text);
 
-        String script = "hello_text,setVisibility,int:8;";
+        String script = " \t hello_text ,\n setVisibility , int : \"8\"; \t fuck_text , setVisibility , int : ( hello_text ,getVisibility \n\t) \n; \n";
         load(script);
         reload();
     }

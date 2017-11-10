@@ -31,7 +31,7 @@ public class Reflaction implements CoreFunc {
     }
     public void reload() {
         if(mReflactTree != null && mReflactTree.length != 0)
-            for(int i=0;i<mReflactTree.length;i++)
+            for(int i = 0; i < mReflactTree.length; i++)
                 mReflactTree[i].exec();
     }
     public void load(String script) {

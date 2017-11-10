@@ -1,6 +1,7 @@
 package cc.shinrai.reflact;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.IdRes;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -29,7 +30,13 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     public void reload() {
-        reflaction.reload();
+        // handle the call from the other looper
+        new Handler(getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                reflaction.reload();
+            }
+        });
     }
 
     public void load(String script) {

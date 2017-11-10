@@ -1,8 +1,5 @@
 package cc.shinrai.reflaction;
 
-
-import android.view.View;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -13,6 +10,10 @@ import java.util.List;
  */
 
 public class ReflactTree {
+    private static final char[][] signal_block = {
+            {'(', ')'},
+            {'\"', '\"'}
+    };
     private Method _method;
     private Object _receiver;
     private ARGV[] _ARGV_OBJECTS;
@@ -37,20 +38,22 @@ public class ReflactTree {
 
     private void buildOne(String script)
             throws NoSuchMethodException, ClassNotFoundException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        String[] assem = script.split(",\\n*");
+        String[] assem = StringMethod.splitWithToken(script, ',', true, signal_block);
         if(assem.length < 2) // if less than 2, must something wrong
             return;
         _receiver = coreFunc.get(assem[0]); // the function receiver
 
         List<Class<?>> classList = new ArrayList<>(); // for build method
         List<ARGV> argvList = new ArrayList<>();
-        for(int i=0;i<assem.length-2;i++) {
-            String[] c_v = assem[i+2].split(":"); // split argv:: class:value
+        for(int i = 0; i < assem.length-2; i++) {
+            String[] c_v = StringMethod.splitWithToken(assem[i+2], ':', true); // split argv:: class:value
             Class<?> cls = ClassTable._ClassForName(c_v[0]);
             Class<?> clsForInstance = ClassTable._ReloadClassName(cls); // basic class do not have instance method.
             ARGV argv;
             if(c_v[1].startsWith("(") && c_v[1].endsWith(")"))
                 argv = new ARGV(false, null, new ReflactTree(c_v[1].substring(1, c_v[1].length()-1), coreFunc));
+            else if(c_v[1].startsWith("\"") && c_v[1].endsWith("\""))
+                argv = new ARGV(true, clsForInstance.getDeclaredConstructor(String.class).newInstance(c_v[1].substring(1, c_v[1].length()-1)), null);
             else
                 argv = new ARGV(true, clsForInstance.getDeclaredConstructor(String.class).newInstance(c_v[1]), null);
 
@@ -58,10 +61,10 @@ public class ReflactTree {
             argvList.add(argv);
         }
 
-        Class<?>[] classes = new Class<?>[classList.size()];
-        _ARGV_OBJECTS = new ARGV[argvList.size()];
-        classList.toArray(classes);
-        argvList.toArray(_ARGV_OBJECTS);
+        Class<?>[] classes = new Class<?>[classList.size()]; // Declare a Class<?> array
+        _ARGV_OBJECTS = new ARGV[argvList.size()]; // Declare a ARGV array
+        classList.toArray(classes); // Class<?> list to Class<?> array
+        argvList.toArray(_ARGV_OBJECTS); // ARGV list to ARGV array
 
         Class<?> _root_class = _receiver.getClass();
         if(_receiver != null) // protect. if receiver is null, pointless.
@@ -80,7 +83,7 @@ public class ReflactTree {
             return null;
         Object result = null; // receive the return of func
         Object[] objects = new Object[_ARGV_OBJECTS.length];
-        for(int i=0;i<_ARGV_OBJECTS.length;i++)
+        for(int i = 0; i < _ARGV_OBJECTS.length; i++)
             objects[i] = _ARGV_OBJECTS[i].get();
         try {
             result = _method.invoke(_receiver, objects); // exec the method
@@ -101,7 +104,7 @@ public class ReflactTree {
     }
 
     private static String[] split(String script) {
-        return script.split(";\\n*");
+        return StringMethod.splitWithToken(script, ';', true);
     }
 }
 
@@ -174,5 +177,92 @@ class ClassTable {
         if(cls == long.class)
             return Long.class;
         return cls; // not match, return origin.
+    }
+}
+
+class StringMethod {
+    private static final char[] block_whitespace = new char[] {' ', '\n', '\r', '\t', '\f'};
+
+    /**
+     * Split the String by the token char.
+     * @param origin the String which is wanted to be split.
+     * @param token
+     * @param is_block_whitespace if you do not want to block whitespace, set false. But... actually I have not tested it. :)
+     * @param signal_block
+     * @return
+     */
+    public static String[] splitWithToken(String origin, char token, boolean is_block_whitespace, char[]... signal_block) {
+        List<String> out = new ArrayList<>();
+        int _start = -1;
+        int i;
+        boolean __protect = false;
+        for(i=0;i<origin.length();i++) {
+            char _single = origin.charAt(i);
+            __protect = isProtect(_single, __protect, signal_block);
+            if(isWhitespaceOrToken(_single, token, is_block_whitespace) && !__protect) { // this is a meaningless whitespace
+                if (_start != -1 && _single == token) { // avoid split on every whitespace
+                    out.add(origin.substring(_start, backTrack(origin, i, is_block_whitespace)));
+                    _start = -1;
+                }
+                continue;
+            }
+            if(_start != -1)
+                continue;
+            else
+                _start = i;
+        }
+        if(_start != -1)
+            out.add(origin.substring(_start, backTrack(origin, i, is_block_whitespace)));
+
+        String[] outArr = new String[out.size()];
+        out.toArray(outArr);
+        return outArr;
+    }
+
+    /**
+     * Backtracking forward, and find the last non-whitespace
+     * @param origin
+     * @param i
+     * @return
+     */
+    private static int backTrack(String origin, int i, boolean is_block_whitespace) {
+        int bti = i;
+        if(is_block_whitespace)
+            while(isWhitespace(origin.charAt(bti-1)))
+                bti--;
+        return bti;
+    }
+
+    /**
+     * Determine whether the char is a whitespace or a token
+     * @param c
+     * @param token
+     * @param _is_block
+     * @return
+     */
+    private static boolean isWhitespaceOrToken(char c, char token, boolean _is_block) {
+        if(!_is_block) // if do not block, always return false.
+            return false;
+        if(c == token)
+            return true;
+        return isWhitespace(c);
+    }
+
+    private static boolean isWhitespace(char c) {
+        for (int i = 0; i < block_whitespace.length; i++) {
+            if(block_whitespace[i] == c)
+                return true;
+        }
+        return false;
+    }
+
+    private static boolean isProtect(char c, boolean _flag, char[][] signal_block) {
+        for (char[] _pair : signal_block) {
+            if(_pair[0] == c)
+                return true;
+            if(_pair[1] == c)
+                return false;
+        }
+        return _flag;
     }
 }
