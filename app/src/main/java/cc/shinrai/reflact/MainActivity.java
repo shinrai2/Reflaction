@@ -15,7 +15,7 @@ public class MainActivity extends BaseActivity {
         helloText = (TextView) findViewById(R.id.hello_text);
         fuckText = (TextView) findViewById(R.id.fuck_text);
 
-        String script = "hello_text,setVisibility,int:\"8\";fuck_text,setVisibility,int:(__SELF__,test,int:(hello_text,getVisibility));";
+        String script = "hello_text,setVisibility,int:\"8\";fuck_text,setVisibility,int:(__SELF__,test,int:(__SELF__,test,int:(__SELF__,test,int:(hello_text,getVisibility))));";
         load(script);
         reload();
     }

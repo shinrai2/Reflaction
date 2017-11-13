@@ -47,7 +47,7 @@ public class ReflactTree {
         List<Class<?>> classList = new ArrayList<>(); // for build method
         List<InnerObject> innerList = new ArrayList<>();
         for(int i = 0; i < assem.length-2; i++) {
-            String[] c_v = StringMethod.splitWithToken(assem[i+2], ':', true); // split argv:: class:value
+            String[] c_v = StringMethod.splitWithToken(assem[i+2], ':', true, signal_block); // split argv:: class:value
             Class<?> cls = ClassTable._ClassForName(c_v[0]);
             Class<?> clsForInstance = ClassTable._ReloadClassName(cls); // basic class do not have instance method.
             InnerObject argv;
@@ -201,7 +201,8 @@ class StringMethod {
         int i;
         for(i=0;i<origin.length();i++) {
             char _single = origin.charAt(i);
-            isProtect(_single, _protect_stack, signal_block);
+            if(signal_block.length != 0)
+                isProtect(_single, _protect_stack, signal_block);
             if(isWhitespaceOrToken(_single, token, is_block_whitespace) && _protect_stack.isEmpty()) { // this is a meaningless whitespace
                 if (_start != -1 && _single == token) { // avoid split on every whitespace
                     out.add(origin.substring(_start, backTrack(origin, i, is_block_whitespace)));
