@@ -37,4 +37,7 @@ public class Reflaction implements CoreFunc {
     public void load(String script) {
         mReflactTree = ReflactTree.build(script, this);
     }
+    public int test(int x) {
+        return x;
+    }
 }
