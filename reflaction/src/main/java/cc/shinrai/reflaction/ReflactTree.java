@@ -3,6 +3,7 @@ package cc.shinrai.reflaction;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -11,7 +12,7 @@ import java.util.List;
  */
 
 public class ReflactTree {
-    private final char[][] signal_block = {
+    private static final char[][] signal_block = {
             {'(', ')'},
             {'\"', '\"'}
     };
@@ -142,43 +143,40 @@ class InnerObject {
 }
 
 class ClassTable {
+    private static final HashMap<String, Class<?>> __class_map;
+    private static final HashMap<Class<?>, Class<?>> __reload_map;
+    static {
+        __class_map = new HashMap<>();
+        __class_map.put("String", String.class);
+        __class_map.put("Integer", Integer.class);
+        __class_map.put("Boolean", Boolean.class);
+        __class_map.put("Float", Float.class);
+        __class_map.put("Double", Double.class);
+        __class_map.put("Long", Long.class);
+        __class_map.put("int", int.class);
+        __class_map.put("boolean", boolean.class);
+        __class_map.put("float", float.class);
+        __class_map.put("double", double.class);
+        __class_map.put("long", long.class);
+        __reload_map = new HashMap<>();
+        __reload_map.put(int.class, Integer.class);
+        __reload_map.put(boolean.class, Boolean.class);
+        __reload_map.put(float.class, Float.class);
+        __reload_map.put(double.class, Double.class);
+        __reload_map.put(long.class, Long.class);
+    }
+
     public static Class<?> _ClassForName(String className) throws ClassNotFoundException {
-        if(className.equals("String"))
-            return String.class;
-        if(className.equals("Integer"))
-            return Integer.class;
-        if(className.equals("Boolean"))
-            return Boolean.class;
-        if(className.equals("Float"))
-            return Float.class;
-        if(className.equals("Double"))
-            return Double.class;
-        if(className.equals("Long"))
-            return Long.class;
-        if(className.equals("int"))
-            return int.class;
-        if(className.equals("boolean"))
-            return boolean.class;
-        if(className.equals("float"))
-            return float.class;
-        if(className.equals("double"))
-            return double.class;
-        if(className.equals("long"))
-            return long.class;
+        Class<?> cls = __class_map.get(className);
+        if(cls != null)
+            return cls;
         return Class.forName(className);
     }
 
     public static Class<?> _ReloadClassName(Class<?> cls) {
-        if(cls == int.class)
-            return Integer.class;
-        if(cls == boolean.class)
-            return Boolean.class;
-        if(cls == float.class)
-            return Float.class;
-        if(cls == double.class)
-            return Double.class;
-        if(cls == long.class)
-            return Long.class;
+        Class<?> reload_cls = __reload_map.get(cls);
+        if(reload_cls != null)
+            return reload_cls;
         return cls; // not match, return origin.
     }
 }
