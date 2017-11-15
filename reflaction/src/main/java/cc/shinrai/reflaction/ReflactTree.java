@@ -44,10 +44,6 @@ public class ReflactTree {
         String[] assem = StringMethod.splitWithToken(script, ',', true, signal_block);
         if(assem.length < 2) // if less than 2, must something wrong
             return;
-//        if(assem[0].startsWith("(") && assem[0].endsWith(")"))
-//            _receiver = new ReflactTree(assem[0].substring(1, assem[0].length() - 1), coreFunc);
-//        else
-//            _receiver = coreFunc.get(assem[0]);
         Object inner_1 = innerLayer(assem[0]);
         if(inner_1 instanceof ReflactTree)
             _receiver = inner_1;
@@ -55,7 +51,7 @@ public class ReflactTree {
             _receiver = coreFunc.get((String) inner_1);
         _method = assem[1];
 
-        List<Class<?>> classList = new ArrayList<>(); // for build method
+        List<Class<?>> classList = new ArrayList<>();
         List<Object> objectList = new ArrayList<>();
         for(int i = 0; i < assem.length-2; i++) {
             String[] c_v = StringMethod.splitWithToken(assem[i+2], ':', true, signal_block); // split argv:: class:value
@@ -66,12 +62,6 @@ public class ReflactTree {
                 arg_object = inner_2;
             else
                 arg_object = ClassTable._ReloadClassName(cls).getDeclaredConstructor(String.class).newInstance((String) inner_2);
-//            if(c_v[1].startsWith("(") && c_v[1].endsWith(")"))
-//                object = new ReflactTree(c_v[1].substring(1, c_v[1].length()-1), coreFunc);
-//            else if(c_v[1].startsWith("\"") && c_v[1].endsWith("\""))
-//                object = ClassTable._ReloadClassName(cls).getDeclaredConstructor(String.class).newInstance(c_v[1].substring(1, c_v[1].length()-1));
-//            else
-//                object = ClassTable._ReloadClassName(cls).getDeclaredConstructor(String.class).newInstance(c_v[1]);
 
             classList.add(cls);
             objectList.add(arg_object);
@@ -81,17 +71,6 @@ public class ReflactTree {
         _arg_object = new Object[objectList.size()]; // Declare a Object array
         classList.toArray(_arg_class); // Class<?> list to Class<?> array
         objectList.toArray(_arg_object); // Object list to Object array
-
-//        Class<?> _root_class = _receiver.getClass();
-//        if(_receiver != null) // protect. if receiver is null, pointless.
-//            while(_method == null && _root_class != Object.class) {
-//                try { // must handle it in this loop, otherwise this loop will be break.
-//                    _method = _root_class.getDeclaredMethod(assem[1], classes);
-//                } catch (NoSuchMethodException e) {
-//                    e.printStackTrace();
-//                }
-//                _root_class = _root_class.getSuperclass();
-//            }
     }
 
     private Object innerLayer(String inner) {
