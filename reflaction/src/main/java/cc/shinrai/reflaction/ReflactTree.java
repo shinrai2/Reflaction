@@ -16,9 +16,10 @@ public class ReflactTree {
             {'(', ')'},
             {'\"', '\"'}
     };
-    private Method _method;
     private Object _receiver;
-    private InnerObject[] _INNER_OBJECTS;
+    private String _method;
+    private Class<?>[] _arg_class;
+    private Object[] _arg_object;
     private CoreFunc coreFunc;
 
     private ReflactTree(String script, CoreFunc coreFunc) {
@@ -39,56 +40,99 @@ public class ReflactTree {
     }
 
     private void buildOne(String script)
-            throws NoSuchMethodException, ClassNotFoundException, IllegalAccessException, InvocationTargetException, InstantiationException {
+            throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         String[] assem = StringMethod.splitWithToken(script, ',', true, signal_block);
         if(assem.length < 2) // if less than 2, must something wrong
             return;
-        _receiver = coreFunc.get(assem[0]); // the function receiver
+//        if(assem[0].startsWith("(") && assem[0].endsWith(")"))
+//            _receiver = new ReflactTree(assem[0].substring(1, assem[0].length() - 1), coreFunc);
+//        else
+//            _receiver = coreFunc.get(assem[0]);
+        Object inner_1 = innerLayer(assem[0]);
+        if(inner_1 instanceof ReflactTree)
+            _receiver = inner_1;
+        else
+            _receiver = coreFunc.get((String) inner_1);
+        _method = assem[1];
 
         List<Class<?>> classList = new ArrayList<>(); // for build method
-        List<InnerObject> innerList = new ArrayList<>();
+        List<Object> objectList = new ArrayList<>();
         for(int i = 0; i < assem.length-2; i++) {
             String[] c_v = StringMethod.splitWithToken(assem[i+2], ':', true, signal_block); // split argv:: class:value
             Class<?> cls = ClassTable._ClassForName(c_v[0]);
-            Class<?> clsForInstance = ClassTable._ReloadClassName(cls); // basic class do not have instance method.
-            InnerObject argv;
-            if(c_v[1].startsWith("(") && c_v[1].endsWith(")"))
-                argv = new InnerObject(false, null, new ReflactTree(c_v[1].substring(1, c_v[1].length()-1), coreFunc));
-            else if(c_v[1].startsWith("\"") && c_v[1].endsWith("\""))
-                argv = new InnerObject(true, clsForInstance.getDeclaredConstructor(String.class).newInstance(c_v[1].substring(1, c_v[1].length()-1)), null);
+            Object inner_2 = innerLayer(c_v[1]);
+            Object arg_object;
+            if(inner_2 instanceof ReflactTree)
+                arg_object = inner_2;
             else
-                argv = new InnerObject(true, clsForInstance.getDeclaredConstructor(String.class).newInstance(c_v[1]), null);
+                arg_object = ClassTable._ReloadClassName(cls).getDeclaredConstructor(String.class).newInstance((String) inner_2);
+//            if(c_v[1].startsWith("(") && c_v[1].endsWith(")"))
+//                object = new ReflactTree(c_v[1].substring(1, c_v[1].length()-1), coreFunc);
+//            else if(c_v[1].startsWith("\"") && c_v[1].endsWith("\""))
+//                object = ClassTable._ReloadClassName(cls).getDeclaredConstructor(String.class).newInstance(c_v[1].substring(1, c_v[1].length()-1));
+//            else
+//                object = ClassTable._ReloadClassName(cls).getDeclaredConstructor(String.class).newInstance(c_v[1]);
 
             classList.add(cls);
-            innerList.add(argv);
+            objectList.add(arg_object);
         }
 
-        Class<?>[] classes = new Class<?>[classList.size()]; // Declare a Class<?> array
-        _INNER_OBJECTS = new InnerObject[innerList.size()]; // Declare a ARGV array
-        classList.toArray(classes); // Class<?> list to Class<?> array
-        innerList.toArray(_INNER_OBJECTS); // ARGV list to ARGV array
+        _arg_class = new Class<?>[classList.size()]; // Declare a Class<?> array
+        _arg_object = new Object[objectList.size()]; // Declare a Object array
+        classList.toArray(_arg_class); // Class<?> list to Class<?> array
+        objectList.toArray(_arg_object); // Object list to Object array
 
-        Class<?> _root_class = _receiver.getClass();
-        if(_receiver != null) // protect. if receiver is null, pointless.
-            while(_method == null && _root_class != Object.class) {
+//        Class<?> _root_class = _receiver.getClass();
+//        if(_receiver != null) // protect. if receiver is null, pointless.
+//            while(_method == null && _root_class != Object.class) {
+//                try { // must handle it in this loop, otherwise this loop will be break.
+//                    _method = _root_class.getDeclaredMethod(assem[1], classes);
+//                } catch (NoSuchMethodException e) {
+//                    e.printStackTrace();
+//                }
+//                _root_class = _root_class.getSuperclass();
+//            }
+    }
+
+    private Object innerLayer(String inner) {
+        if(inner.startsWith("(") && inner.endsWith(")"))
+            return new ReflactTree(inner.substring(1, inner.length() - 1), coreFunc);
+        else if(inner.startsWith("\"") && inner.endsWith("\""))
+            return inner.substring(1, inner.length() - 1);
+        else
+            return inner;
+    }
+
+    public Object exec() {
+        Object _receiver_; // _receiver is not the actual receiver, but _receiver_ is.
+        Method _method_ = null;
+        if(_receiver instanceof ReflactTree)
+            _receiver_ = ((ReflactTree) _receiver).exec(); // exec the inner func in receiver part.
+        else
+            _receiver_ = _receiver;
+        Class<?> _root_class = _receiver_.getClass();
+        if(_receiver_ != null) // protect. if receiver is null, pointless.
+            while(_method_ == null && _root_class != Object.class) {
                 try { // must handle it in this loop, otherwise this loop will be break.
-                    _method = _root_class.getDeclaredMethod(assem[1], classes);
+                    _method_ = _root_class.getDeclaredMethod(_method, _arg_class);
                 } catch (NoSuchMethodException e) {
                     e.printStackTrace();
                 }
                 _root_class = _root_class.getSuperclass();
             }
-    }
 
-    public Object exec() {
-        if(_receiver == null || _method == null) // if have not receiver, do not exec.
+        if(_receiver_ == null || _method_ == null) // if have not receiver, do not exec.
             return null;
         Object result = null; // receive the return of func
-        Object[] objects = new Object[_INNER_OBJECTS.length];
-        for(int i = 0; i < _INNER_OBJECTS.length; i++)
-            objects[i] = _INNER_OBJECTS[i].get();
+        Object[] objects = new Object[_arg_object.length];
+        for(int i = 0; i < _arg_object.length; i++) {
+            if (_arg_object[i] instanceof ReflactTree)
+                objects[i] = ((ReflactTree) _arg_object[i]).exec(); // exec the inner func in arg part.
+            else
+                objects[i] = _arg_object[i];
+        }
         try {
-            result = _method.invoke(_receiver, objects); // exec the method
+            result = _method_.invoke(_receiver_, objects); // exec the method
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
@@ -109,36 +153,6 @@ public class ReflactTree {
 
     private static String[] split(String script) {
         return StringMethod.splitWithToken(script, ';', true);
-    }
-}
-
-/**
- * the inner function ARGV's class.
- */
-class InnerObject {
-    private Object _object;
-    private ReflactTree _tree;
-    private boolean _flag;
-
-    /**
-     * the init func.
-     * Rule:
-     * @obj set flag true.
-     * @tree set flag false.
-     */
-    public InnerObject(boolean flag, Object obj, ReflactTree tree) {
-        _flag = flag;
-        if(flag)
-            _object = obj;
-        else
-            _tree = tree;
-    }
-
-    public Object get() {
-        if(_flag)
-            return _object;
-        else
-            return _tree.exec();
     }
 }
 
