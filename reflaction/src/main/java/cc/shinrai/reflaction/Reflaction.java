@@ -39,6 +39,11 @@ public class Reflaction implements CoreFunc {
         __OBJECTS__.remove(symbol);
     }
 
+    @Override
+    public Context getContext() {
+        return mContext;
+    }
+
     public void reload() {
         if(mReflactTree != null && mReflactTree.length != 0)
             for(int i = 0; i < mReflactTree.length; i++)

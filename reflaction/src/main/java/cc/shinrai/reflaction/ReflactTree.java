@@ -1,11 +1,14 @@
 package cc.shinrai.reflaction;
 
+import android.content.Context;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * Created by Shinrai on 2017/11/2 0002.
@@ -166,12 +169,15 @@ class ClassTable {
         __class_map.put("float", float.class);
         __class_map.put("double", double.class);
         __class_map.put("long", long.class);
+        __class_map.put("CharSequence", CharSequence.class);
+        __class_map.put("Context", Context.class);
         __reload_map = new HashMap<>();
         __reload_map.put(int.class, Integer.class);
         __reload_map.put(boolean.class, Boolean.class);
         __reload_map.put(float.class, Float.class);
         __reload_map.put(double.class, Double.class);
         __reload_map.put(long.class, Long.class);
+        __reload_map.put(CharSequence.class, String.class);
     }
 
     public static Class<?> _ClassForName(String className) throws ClassNotFoundException {
@@ -267,16 +273,22 @@ class StringMethod {
     }
 
     private static void isProtect(char c, LinkedList<Character> _stack, char[][] signal_block) {
+        Character first = null;
         for (char[] _pair : signal_block) {
-            if(_stack.isEmpty() || _pair[0] == _stack.getFirst()) {
-                if(_pair[0] == c) {
-                    _stack.addFirst(c);
-                    break;
+            if(first == null)
+                try {
+                    first = _stack.getFirst();
+                } catch (NoSuchElementException e) {
+                    e.printStackTrace();
                 }
-                if (_pair[1] == c && !_stack.isEmpty()) {
-                    _stack.removeFirst();
-                    break;
-                }
+            if(_pair[1] == c && ((Character) _pair[0]).equals(first)) {
+                _stack.removeFirst();
+                first = null;
+                break;
+            } else if(_pair[0] == c) {
+                _stack.addFirst(c);
+                first = null;
+                break;
             }
         }
     }

@@ -2,6 +2,7 @@ package cc.shinrai.reflact;
 
 import android.os.Bundle;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.PrintStream;
 
@@ -16,9 +17,8 @@ public class MainActivity extends BaseActivity {
 
         helloText = (TextView) findViewById(R.id.hello_text);
         fuckText = (TextView) findViewById(R.id.fuck_text);
-//        System.out.println("method chaining test.");
 
-        String script = "(cc.shinrai.reflact.ForTest\n,&out),println,String:\"method chaining test.\";(__SELF__,get,String:\"hello_text\"),setVisibility,int:\"8\";(__SELF__,get,String:fuck_text),setVisibility,int:(hello_text,getVisibility);";
+        String script = "(android.widget.Toast,&makeText,Context:(__SELF__,getContext),CharSequence:\"a test.\",int:1),show;";
         load(script, new ScriptLoadedCallback() {
             @Override
             public void loaded() {
@@ -30,5 +30,11 @@ public class MainActivity extends BaseActivity {
 class ForTest {
     public static PrintStream out() {
         return System.out;
+    }
+    public static Class aClass() {
+        return ForTest.class;
+    }
+    public static String add(String a, String b) {
+        return a+b;
     }
 }
