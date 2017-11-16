@@ -18,7 +18,7 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        reflaction = new Reflaction();
+        reflaction = new Reflaction(this);
     }
 
     @Override
@@ -39,7 +39,17 @@ public class BaseActivity extends AppCompatActivity {
         });
     }
 
-    public void load(String script) {
-        reflaction.load(script);
+    public void load(final String script, final ScriptLoadedCallback scriptLoadedCallback) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                reflaction.load(script);
+                scriptLoadedCallback.loaded();
+            }
+        }).start();
+    }
+
+    interface ScriptLoadedCallback {
+        void loaded();
     }
 }

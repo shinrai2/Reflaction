@@ -3,6 +3,8 @@ package cc.shinrai.reflact;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import java.io.PrintStream;
+
 public class MainActivity extends BaseActivity {
     private TextView helloText;
     private TextView fuckText;
@@ -14,9 +16,19 @@ public class MainActivity extends BaseActivity {
 
         helloText = (TextView) findViewById(R.id.hello_text);
         fuckText = (TextView) findViewById(R.id.fuck_text);
+//        System.out.println("method chaining test.");
 
-        String script = "(__SELF__,get,String:hello_text),setVisibility,int:\"8\";fuck_text,setVisibility,int:(__SELF__,test,int:(__SELF__,test,int:(__SELF__,test,int:(hello_text,getVisibility))));";
-        load(script);
-        reload();
+        String script = "(cc.shinrai.reflact.ForTest\n,&out),println,String:\"method chaining test.\";(__SELF__,get,String:\"hello_text\"),setVisibility,int:\"8\";(__SELF__,get,String:fuck_text),setVisibility,int:(hello_text,getVisibility);";
+        load(script, new ScriptLoadedCallback() {
+            @Override
+            public void loaded() {
+                reload();
+            }
+        });
+    }
+}
+class ForTest {
+    public static PrintStream out() {
+        return System.out;
     }
 }

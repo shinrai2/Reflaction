@@ -20,9 +20,12 @@ public class ReflactTree {
     private String _method;
     private Class<?>[] _arg_class;
     private Object[] _arg_object;
+    private boolean _AND_SIGN; // a sign, when method is static, set true.
+
     private CoreFunc coreFunc;
 
     private ReflactTree(String script, CoreFunc coreFunc) {
+        _AND_SIGN = false; // default is false.
         this.coreFunc = coreFunc;
         try {
             this.buildOne(script);
@@ -49,7 +52,14 @@ public class ReflactTree {
             _receiver = inner_1;
         else
             _receiver = coreFunc.get((String) inner_1);
-        _method = assem[1];
+        if(assem[1].startsWith("&")) {
+            _AND_SIGN = true;
+            _method = assem[1].substring(1);
+            if(_receiver == null)
+                _receiver = ClassTable._ClassForName((String) inner_1);
+        } else
+            _method = assem[1];
+        // TODO field operating.
 
         List<Class<?>> classList = new ArrayList<>();
         List<Object> objectList = new ArrayList<>();
@@ -89,7 +99,13 @@ public class ReflactTree {
             _receiver_ = ((ReflactTree) _receiver).exec(); // exec the inner func in receiver part.
         else
             _receiver_ = _receiver;
-        Class<?> _root_class = _receiver_.getClass();
+        if(_receiver_ == null) // if have not receiver, do not exec.
+            return null;
+        Class<?> _root_class;
+        if(_AND_SIGN) // if receiver is a class, do not use to call getClass()
+            _root_class = (Class<?>) _receiver_;
+        else
+            _root_class = _receiver_.getClass();
         if(_receiver_ != null) // protect. if receiver is null, pointless.
             while(_method_ == null && _root_class != Object.class) {
                 try { // must handle it in this loop, otherwise this loop will be break.
@@ -99,8 +115,7 @@ public class ReflactTree {
                 }
                 _root_class = _root_class.getSuperclass();
             }
-
-        if(_receiver_ == null || _method_ == null) // if have not receiver, do not exec.
+        if(_method_ == null) // if have not method, do not exec.
             return null;
         Object result = null; // receive the return of func
         Object[] objects = new Object[_arg_object.length];

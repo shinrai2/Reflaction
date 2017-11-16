@@ -1,5 +1,7 @@
 package cc.shinrai.reflaction;
 
+import android.content.Context;
+
 import java.util.HashMap;
 
 /**
@@ -9,9 +11,11 @@ import java.util.HashMap;
 public class Reflaction implements CoreFunc {
     private HashMap<String, Object> __OBJECTS__;
     private ReflactTree[] mReflactTree;
+    private Context mContext;
 
-    public Reflaction() {
+    public Reflaction(Context context) {
         __OBJECTS__ = new HashMap<>();
+        mContext = context;
     }
 
     @Override
@@ -29,6 +33,12 @@ public class Reflaction implements CoreFunc {
         else
             return null;
     }
+
+    @Override
+    public void rm(String symbol) {
+        __OBJECTS__.remove(symbol);
+    }
+
     public void reload() {
         if(mReflactTree != null && mReflactTree.length != 0)
             for(int i = 0; i < mReflactTree.length; i++)
@@ -36,8 +46,5 @@ public class Reflaction implements CoreFunc {
     }
     public void load(String script) {
         mReflactTree = ReflactTree.build(script, this);
-    }
-    public int test(int x) {
-        return x;
     }
 }

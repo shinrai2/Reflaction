@@ -7,4 +7,5 @@ package cc.shinrai.reflaction;
 public interface CoreFunc {
     void put(String symbol, Object object);
     Object get(String symbol);
+    void rm(String symbol);
 }
