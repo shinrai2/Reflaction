@@ -2,6 +2,7 @@ package cc.shinrai.reflaction;
 
 import android.content.Context;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
 /**
@@ -40,8 +41,44 @@ public class Reflaction implements CoreFunc {
     }
 
     @Override
+    public Object getInstance(String clsn, String value) {
+        Class<?> cls;
+        Object obj = null;
+        try {
+            cls = ClassTable._ClassForName(clsn);
+            obj = getInstance(cls, value);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return obj;
+    }
+
+    @Override
+    public Object getInstance(Class<?> oriClass, String value) {
+        Class<?> cls = ClassTable._ReloadClassName(oriClass);
+        Object obj = null;
+        try {
+            obj = cls.getDeclaredConstructor(String.class).newInstance(value);
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        return obj;
+    }
+
+    @Override
     public Context getContext() {
         return mContext;
+    }
+
+    @Override
+    public Object NIL() {
+        return null;
     }
 
     public void reload() {

@@ -32,30 +32,22 @@ public class ReflactTree {
         this.coreFunc = coreFunc;
         try {
             this.buildOne(script);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
             e.printStackTrace();
         }
     }
 
     private void buildOne(String script)
-            throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+            throws ClassNotFoundException {
         String[] assem = StringMethod.splitWithToken(script, ',', true, signal_block);
         if(assem.length < 2) // if less than 2, must something wrong
             return;
-        Object inner_1 = innerLayer(assem[0]);
+        Object inner_1 = innerLayer(assem[0]); // Object part: a tree or a object
         if(inner_1 instanceof ReflactTree)
             _receiver = inner_1;
         else
             _receiver = coreFunc.get((String) inner_1);
-        if(assem[1].startsWith("&")) {
+        if(assem[1].startsWith("&")) { // a static func sign.
             _AND_SIGN = true;
             _method = assem[1].substring(1);
             if(_receiver == null)
@@ -68,13 +60,20 @@ public class ReflactTree {
         List<Object> objectList = new ArrayList<>();
         for(int i = 0; i < assem.length-2; i++) {
             String[] c_v = StringMethod.splitWithToken(assem[i+2], ':', true, signal_block); // split argv:: class:value
-            Class<?> cls = ClassTable._ClassForName(c_v[0]);
-            Object inner_2 = innerLayer(c_v[1]);
-            Object arg_object;
+            Class<?> cls;
+            Object inner_2; // Argv part: a tree or a object
+            if(c_v.length == 1) { // if do not have split token, class is String.
+                cls = String.class;
+                inner_2 = innerLayer(c_v[0]);
+            } else {
+                cls = ClassTable._ClassForName(c_v[0]);
+                inner_2 = innerLayer(c_v[1]);
+            }
+            Object arg_object; // a tree or a instance.
             if(inner_2 instanceof ReflactTree)
                 arg_object = inner_2;
             else
-                arg_object = ClassTable._ReloadClassName(cls).getDeclaredConstructor(String.class).newInstance((String) inner_2);
+                arg_object = coreFunc.getInstance(cls, (String) inner_2);
 
             classList.add(cls);
             objectList.add(arg_object);
@@ -149,7 +148,7 @@ public class ReflactTree {
     }
 
     private static String[] split(String script) {
-        return StringMethod.splitWithToken(script, ';', true);
+        return StringMethod.splitWithToken(script, ';', true, signal_block);
     }
 }
 
@@ -169,7 +168,6 @@ class ClassTable {
         __class_map.put("float", float.class);
         __class_map.put("double", double.class);
         __class_map.put("long", long.class);
-        __class_map.put("CharSequence", CharSequence.class);
         __class_map.put("Context", Context.class);
         __reload_map = new HashMap<>();
         __reload_map.put(int.class, Integer.class);
@@ -177,7 +175,6 @@ class ClassTable {
         __reload_map.put(float.class, Float.class);
         __reload_map.put(double.class, Double.class);
         __reload_map.put(long.class, Long.class);
-        __reload_map.put(CharSequence.class, String.class);
     }
 
     public static Class<?> _ClassForName(String className) throws ClassNotFoundException {

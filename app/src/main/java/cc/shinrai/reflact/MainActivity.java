@@ -1,6 +1,7 @@
 package cc.shinrai.reflact;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,8 +18,11 @@ public class MainActivity extends BaseActivity {
 
         helloText = (TextView) findViewById(R.id.hello_text);
         fuckText = (TextView) findViewById(R.id.fuck_text);
+        Object[] a = new Object[] {new Object()};
+        Class<?> b = a.getClass();
+        b.toString();
 
-        String script = "(android.widget.Toast,&makeText,Context:(__SELF__,getContext),CharSequence:\"a test.\",int:1),show;";
+        String script = "(android.widget.Toast,&makeText,Context:(__SELF__,getContext),java.lang.CharSequence:(__SELF__,getInstance,String,\"a test.\"),int:1),show;";
         load(script, new ScriptLoadedCallback() {
             @Override
             public void loaded() {
