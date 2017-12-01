@@ -11,7 +11,8 @@ import java.util.HashMap;
 
 public class Reflaction implements CoreFunc {
     private HashMap<String, Object> __OBJECTS__;
-    private ReflactTree[] mReflactTree;
+//    private ReflactTree[] mReflactTree;
+    private SCOPE rootScope;
     private Context mContext;
 
     public Reflaction(Context context) {
@@ -76,17 +77,17 @@ public class Reflaction implements CoreFunc {
         return mContext;
     }
 
-    @Override
-    public Object NIL() {
-        return null;
-    }
-
-    public void reload() {
-        if(mReflactTree != null && mReflactTree.length != 0)
-            for(int i = 0; i < mReflactTree.length; i++)
-                mReflactTree[i].exec();
+    public Object exec() {
+//        if(mReflactTree != null && mReflactTree.length != 0)
+//            for(int i = 0; i < mReflactTree.length; i++)
+//                mReflactTree[i].exec();
+//        return null;
+        return rootScope.execEach();
     }
     public void load(String script) {
-        mReflactTree = ReflactTree.build(script, this);
+//        mReflactTree = ReflactTree.build(script, this);
+        // TODO parse the script string.
+        Object parent = null;
+        for()
     }
 }

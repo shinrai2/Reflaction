@@ -7,15 +7,26 @@ import android.content.Context;
  */
 
 public interface CoreFunc {
+    /**
+     * the basic operation of REFLACTION.
+     * put obj to   list.
+     * get obj from list.
+     * rem obj from list.
+     * get context from field.
+     */
     void put(String symbol, Object object);
     Object get(String symbol);
     void rm(String symbol);
-    Object getInstance(String className, String value);
-    Object getInstance(Class<?> oriClass, String value);
     Context getContext();
 
+    /**
+     * get the instance of the specified class.
+     */
+    Object getInstance(String className, String value);
+    Object getInstance(Class<?> oriClass, String value);
+
     // some practicality func
-    Object NIL();
+//    Object NIL();
 //    void judgif(boolean condition, Object satisfied, Object not_satisfied);
 //    void loop(boolean condition, Object loop_body);
 }

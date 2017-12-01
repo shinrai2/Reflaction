@@ -22,11 +22,11 @@ public class MainActivity extends BaseActivity {
         Class<?> b = a.getClass();
         b.toString();
 
-        String script = "(android.widget.Toast,&makeText,Context:(__SELF__,getContext),java.lang.CharSequence:(__SELF__,getInstance,String,\"a test.\"),int:1),show;";
+        String script = "(android.widget.Toast,&makeText,Context:(__SELF__,getContext),java.lang.CharSequence:(__SELF__,getInstance,String,\"a test\nshinrai.\"),int:1),show;";
         load(script, new ScriptLoadedCallback() {
             @Override
             public void loaded() {
-                reload();
+                exec();
             }
         });
     }

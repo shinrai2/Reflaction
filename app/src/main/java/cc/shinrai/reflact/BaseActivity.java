@@ -29,12 +29,12 @@ public class BaseActivity extends AppCompatActivity {
         return view;
     }
 
-    public void reload() {
+    public void exec() {
         // handle the call from the other looper
         new Handler(getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                reflaction.reload();
+                reflaction.exec();
             }
         });
     }
