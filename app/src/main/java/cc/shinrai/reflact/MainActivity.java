@@ -18,15 +18,12 @@ public class MainActivity extends BaseActivity {
 
         helloText = (TextView) findViewById(R.id.hello_text);
         fuckText = (TextView) findViewById(R.id.fuck_text);
-        Object[] a = new Object[] {new Object()};
-        Class<?> b = a.getClass();
-        b.toString();
 
-        String script = "(android.widget.Toast,&makeText,Context:(__SELF__,getContext),java.lang.CharSequence:(__SELF__,getInstance,String,\"a test\nshinrai.\"),int:1),show;";
+        String script = "{(fuck\\\\text,setVisibility,int:(hello_text,getVisibility,int:(hello_text,getVisibility,int:(hello_text,getVisibility,int:(hello_text,getVisibility,int:(hello_text,getVisibility,int:(hello_text,getVisibility,int:(hello_text,getVisibility,int:(hello_text,getVisibility,int:(hello_text,getVisibility,int:(hello_text,getVisibility)))))))))))}";
         load(script, new ScriptLoadedCallback() {
             @Override
             public void loaded() {
-                exec();
+//                exec();
             }
         });
     }

@@ -43,7 +43,10 @@ public class BaseActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                long bef = System.nanoTime();
                 reflaction.load(script);
+                long aft = System.nanoTime();
+                System.out.println("reflaction: " + String.valueOf(aft - bef));
                 scriptLoadedCallback.loaded();
             }
         }).start();
