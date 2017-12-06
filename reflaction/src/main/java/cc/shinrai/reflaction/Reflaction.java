@@ -21,24 +21,20 @@ public class Reflaction implements CoreFunc {
     }
 
     @Override
-    public void put(String symbol, Object object) {
-        __OBJECTS__.put(symbol, object);
+    public Object put(String symbol, Object object) {
+        return __OBJECTS__.put(symbol, object);
     }
 
     @Override
     public Object get(String symbol) {
-        if(symbol.equals("__SELF__")) // direct to self.
+        if(symbol.equals("_")) // direct to self.
             return this;
-        Object obj = __OBJECTS__.get(symbol);
-        if(obj != null)
-            return obj;
-        else
-            return null;
+        return __OBJECTS__.get(symbol);
     }
 
     @Override
-    public void rm(String symbol) {
-        __OBJECTS__.remove(symbol);
+    public Object rm(String symbol) {
+        return __OBJECTS__.remove(symbol);
     }
 
     @Override
@@ -73,6 +69,16 @@ public class Reflaction implements CoreFunc {
     }
 
     @Override
+    public Class<?> _ClassForName(String className) {
+        return null;
+    }
+
+    @Override
+    public Class<?> _ClassReload(Class<?> cls) {
+        return null;
+    }
+
+    @Override
     public Context getContext() {
         return mContext;
     }
@@ -82,7 +88,7 @@ public class Reflaction implements CoreFunc {
 //            for(int i = 0; i < mReflactTree.length; i++)
 //                mReflactTree[i].exec();
 //        return null;
-        return rootScope.exec();
+        return ((SCOPE) rootScope).execEach();
     }
     public void load(String script) {
 //        mReflactTree = ReflactTree.build(script, this);
@@ -111,7 +117,7 @@ public class Reflaction implements CoreFunc {
                     break;
                 /* start of the func. */
                 case '(':
-                    current = new METHOD(current);
+                    current = new METHOD(current, this);
                     break;
                 /* start of the scope. */
                 case '{':

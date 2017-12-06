@@ -1,5 +1,6 @@
 package cc.shinrai.reflaction;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,9 +23,11 @@ class METHOD implements BASIC {
 
     private BASIC _parent;
     private POINT point;
+    private CoreFunc coreFunc;
 
-    public METHOD(BASIC parent) {
+    public METHOD(BASIC parent, CoreFunc coreFunc) {
         set_parent(parent);
+        this.coreFunc = coreFunc;
         this.point = POINT.RECEIVER;
         this.classList = new ArrayList<>();
         this.objectList = new ArrayList<>();
@@ -32,6 +35,18 @@ class METHOD implements BASIC {
     @Override
     public Object exec() {
         // TODO
+        Object realObject = null;
+        Method realMethod = null;
+        Object[] realObjects = null;
+        /* handle the receiver. */
+        if(_receiver instanceof METHOD) // chaining method.
+            realObject = ((METHOD) _receiver).exec();
+        if(_receiver instanceof String) // instance in list.
+            realObject = coreFunc.get((String) _receiver);
+        if(realObject == null) // receiver is not instance.
+            return null;
+        /* handle the method. */
+
         return null;
     }
     @Override

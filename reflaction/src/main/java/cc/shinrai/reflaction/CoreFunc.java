@@ -14,9 +14,9 @@ public interface CoreFunc {
      * rem obj from list.
      * get context from field.
      */
-    void put(String symbol, Object object);
+    Object put(String symbol, Object object);
     Object get(String symbol);
-    void rm(String symbol);
+    Object rm(String symbol);
     Context getContext();
 
     /**
@@ -24,9 +24,6 @@ public interface CoreFunc {
      */
     Object getInstance(String className, String value);
     Object getInstance(Class<?> oriClass, String value);
-
-    // some practicality func
-//    Object NIL();
-//    void judgif(boolean condition, Object satisfied, Object not_satisfied);
-//    void loop(boolean condition, Object loop_body);
+    Class<?> _ClassForName(String className);
+    Class<?> _ClassReload(Class<?> cls);
 }

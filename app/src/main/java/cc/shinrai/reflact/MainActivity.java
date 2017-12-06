@@ -19,7 +19,7 @@ public class MainActivity extends BaseActivity {
         helloText = (TextView) findViewById(R.id.hello_text);
         fuckText = (TextView) findViewById(R.id.fuck_text);
 
-        String script = "{(fuck\\\\text,setVisibility,int:(hello_text,getVisibility,int:(hello_text,getVisibility,int:(hello_text,getVisibility,int:(hello_text,getVisibility,int:(hello_text,getVisibility,int:(hello_text,getVisibility,int:(hello_text,getVisibility,int:(hello_text,getVisibility,int:(hello_text,getVisibility,int:(hello_text,getVisibility)))))))))))}";
+        String script = "{(fuck_text,setVisibility,int:(hello_text,getVisibility))}";
         load(script, new ScriptLoadedCallback() {
             @Override
             public void loaded() {
