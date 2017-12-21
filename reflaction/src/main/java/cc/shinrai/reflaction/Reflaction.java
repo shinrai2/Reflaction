@@ -29,7 +29,11 @@ public class Reflaction implements CoreFunc {
     public Object get(String symbol) {
         if(symbol.equals("_")) // direct to self.
             return this;
-        return __OBJECTS__.get(symbol);
+        Object objInList = __OBJECTS__.get(symbol);
+        if(objInList != null)
+            return objInList;
+        else
+            return _Class._ClassForName(symbol);
     }
 
     @Override
@@ -40,19 +44,15 @@ public class Reflaction implements CoreFunc {
     @Override
     public Object getInstance(String clsn, String value) {
         Class<?> cls;
-        Object obj = null;
-        try {
-            cls = ClassTable._ClassForName(clsn);
-            obj = getInstance(cls, value);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        Object obj;
+        cls = _Class._ClassForName(clsn);
+        obj = getInstance(cls, value);
         return obj;
     }
 
     @Override
     public Object getInstance(Class<?> oriClass, String value) {
-        Class<?> cls = ClassTable._ReloadClassName(oriClass);
+        Class<?> cls = _Class._ReloadClassName(oriClass);
         Object obj = null;
         try {
             obj = cls.getDeclaredConstructor(String.class).newInstance(value);
@@ -170,5 +170,50 @@ public class Reflaction implements CoreFunc {
             }
         }
         rootScope = current;
+    }
+}
+
+class _Class {
+    private static final HashMap<String, Class<?>> __class_map;
+    private static final HashMap<Class<?>, Class<?>> __reload_map;
+    static {
+        __class_map = new HashMap<>();
+        __class_map.put("String", String.class);
+        __class_map.put("Integer", Integer.class);
+        __class_map.put("Boolean", Boolean.class);
+        __class_map.put("Float", Float.class);
+        __class_map.put("Double", Double.class);
+        __class_map.put("Long", Long.class);
+        __class_map.put("int", int.class);
+        __class_map.put("boolean", boolean.class);
+        __class_map.put("float", float.class);
+        __class_map.put("double", double.class);
+        __class_map.put("long", long.class);
+        __class_map.put("Context", Context.class);
+        __reload_map = new HashMap<>();
+        __reload_map.put(int.class, Integer.class);
+        __reload_map.put(boolean.class, Boolean.class);
+        __reload_map.put(float.class, Float.class);
+        __reload_map.put(double.class, Double.class);
+        __reload_map.put(long.class, Long.class);
+    }
+
+    public static Class<?> _ClassForName(String className) {
+        Class<?> cls = __class_map.get(className);
+        if(cls != null)
+            return cls;
+        try {
+            return Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static Class<?> _ReloadClassName(Class<?> cls) {
+        Class<?> reload_cls = __reload_map.get(cls);
+        if(reload_cls != null)
+            return reload_cls;
+        return cls; // not match, return origin.
     }
 }

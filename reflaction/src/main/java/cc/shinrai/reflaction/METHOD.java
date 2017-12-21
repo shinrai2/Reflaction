@@ -17,12 +17,12 @@ class METHOD implements BASIC {
     private String _method          = null;
     private String[] _classOfArgs   = null;
     private Object[] _objectOfArgs  = null;
-
+    /* help build. */
     private List<String> classList;
     private List<Object> objectList;
+    private POINT point;
 
     private BASIC _parent;
-    private POINT point;
     private CoreFunc coreFunc;
 
     public METHOD(BASIC parent, CoreFunc coreFunc) {
@@ -44,7 +44,7 @@ class METHOD implements BASIC {
         if(_receiver instanceof String) // instance in list.
             realObject = coreFunc.get((String) _receiver);
         if(realObject == null) // receiver is not instance.
-            return null;
+            return null; // something wrong. exit the method.
         /* handle the method. */
 
         return null;

@@ -9,8 +9,8 @@ import java.util.List;
 
 class SCOPE implements BASIC {
     private METHOD[] _methods = null;
-
-    private SCOPE scope;
+    private Object[] _rec = null;
+    /* help build. */
     private List<METHOD> methodList;
 
     private BASIC _parent;
